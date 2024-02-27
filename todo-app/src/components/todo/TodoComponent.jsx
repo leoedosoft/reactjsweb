@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react'
 import {useParams, useNavigate} from 'react-router-dom'
 import { retrieveTodoApi, updateTodoApi, createTodoApi } from './api/TodoApiService'
@@ -18,12 +19,10 @@ export default function TodoComponent() {
     const username = authContext.username
     
     useEffect(
-        () => retrieveTodos(),
-        [id]
-        )
+        () => retrieveTodos(),[id])
 
     function retrieveTodos(){
-        if(id != -1) {
+        if(id !== -1) {
             retrieveTodoApi(username, id)
             .then(response => {
                 setDescription(response.data.description)
@@ -46,7 +45,7 @@ export default function TodoComponent() {
 
         console.log(todo)
 
-        if(id==-1) {
+        if(id===-1) {
             createTodoApi(username, todo)
             .then(response => {
                 navigate('/todos')
@@ -72,7 +71,7 @@ export default function TodoComponent() {
             errors.description = 'Enter atleast 5 characters'
         }
 
-        if(values.targetDate == null || values.targetDate=='' || !moment(values.targetDate).isValid()) {
+        if(values.targetDate == null || values.targetDate==='' || !moment(values.targetDate).isValid()) {
             errors.targetDate = 'Enter a target date'
         }
 
