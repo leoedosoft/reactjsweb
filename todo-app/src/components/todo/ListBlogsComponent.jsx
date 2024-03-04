@@ -1,46 +1,98 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react"
-import {useNavigate} from 'react-router-dom'
-import { retrieveAllTodosForUsernameApi, deleteTodoApi } from "./api/TodoApiService"
+import { useNavigate } from 'react-router-dom'
+import { retrieveAllBlogsApi, deleteBlogApi } from "./api/BlogApiService"
 import { useAuth } from "./security/AuthContext"
+import Datatable, { SortOrder } from "react-data-table-component"
 
-function ListTodosComponent() {
+function ListBlogsComponent() {
 
-    const today = new Date()
+    //const today = new Date()
 
     const authContext = useAuth()
 
-    const username = authContext.username
+    const token = authContext.token
 
     const navigate = useNavigate()
     
-    const targetDate = new Date(today.getFullYear()+12, today.getMonth(), today.getDay())
+    //const targetDate = new Date(today.getFullYear()+12, today.getMonth(), today.getDay())
 
-    const [todos,setTodos] = useState([])
+    const [blogs,setBlogs] = useState([])
+    const [filterBlogs,setFilterBlogs] = useState([])
 
     const [message,setMessage] = useState(null)
     
-    useEffect ( () => refreshTodos(), [])
+    useEffect ( () => refreshBlogs(), [])
 
-    function refreshTodos() {
+    function refreshBlogs() {
         
-        retrieveAllTodosForUsernameApi(username)
-        .then(response => {
-            setTodos(response.data)
-        }
-            
-        )
-        .catch(error => console.log(error))
+        retrieveAllBlogsApi(authContext.token)
+        .then( (response) => successfulResponse(response) )
+        .catch ( (error) => errorResponse(error) )
     
     }
 
-    function deleteTodo(id) {
-        console.log('clicked ' + id)
-        deleteTodoApi(username, id)
+    function successfulResponse(response) {
+        console.log(response)
+        setBlogs(response.data)
+        setFilterBlogs(response.data)
+    }
+
+    function errorResponse(error) {
+        console.log(error)
+    }
+
+
+    function addNewBlog() {
+        navigate(`/blog/-1`)
+    }
+
+    const columns =[
+        {
+            name: 'Title',
+            selector: row => row.title,
+            sortable: true
+        },
+        {
+            name: 'Content',
+            selector: row => row.content,
+            sortable: true
+        },
+        {
+            name: 'Type',
+            selector: row => row.type,
+            sortable: true
+        },
+        {
+            name: 'Publication Data',
+            selector: row => row.publicationData,
+            sortable: true
+        },{
+            name: 'Actions',
+            cell:row => <div><button className="btn btn-primary" onClick={()=>handleEdit(row.blogid)}>Edit</button>&nbsp;<button className="btn btn-danger" onClick={()=>handleDelete(row.blogid)}>Delete</button> </div>
+        }
+
+    ]
+
+    function handleFilter(event){
+        const newData = filterBlogs.filter(row => row.title.toLowerCase().includes(event.target.value.toLowerCase()))
+        setBlogs(newData)
+    }
+
+    function handleEdit(blogId){
+        console.log('clicked ' + blogId)
+        navigate(`/blog/${blogId}`)
+    }
+    
+    function handleDelete(blogId) {
+        console.log('clicked ' + blogId)
+        deleteBlogApi(token, blogId)
         .then(
 
             () => {
-                setMessage(`Delete of todos with id = ${id} successful`)
-                refreshTodos()
+                setMessage(`Delete of Blogs with id = ${blogId} successful`)
+                refreshBlogs()
             }
             //1: Display message
             //2: Update Todos list
@@ -48,46 +100,38 @@ function ListTodosComponent() {
         .catch(error => console.log(error))
     }
 
-    function updateTodo(id) {
-        console.log('clicked ' + id)
-        navigate(`/todo/${id}`)
-    }
-
-    function addNewTodo() {
-        navigate(`/todo/-1`)
-    }
-
     return (
         <div className="container">
-            <h1>Things You Want To Do!</h1>
+            <h1>Things You Want Blogs!</h1>
             
             {message && <div className="alert alert-warning">{message}</div>}
 
-            
-            <div>
+            <div className="text-end"><input type="text" onChange={handleFilter}></input></div>
+            <Datatable
+                columns={columns}
+                data={blogs}
+                pagination
+            ></Datatable>
+           {/*
+           <div>
                 <table className="table">
                     <thead>
                             <tr>
-                                <th>Description</th>
-                                <th>Is Done?</th>
-                                <th>Target Date</th>
-                                <th>Delete</th>
-                                <th>Update</th>
+                                <th>Content</th>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Publication Data</th>
                             </tr>
                     </thead>
                     <tbody>
                     {
-                        todos.map(
-                            todo => (
-                                <tr key={todo.id}>
-                                    <td>{todo.description}</td>
-                                    <td>{todo.done.toString()}</td>
-                                    {/* <td>{todo.targetDate.toDateString()}</td> */}
-                                    <td>{todo.targetDate.toString()}</td>
-                                    <td> <button className="btn btn-warning" 
-                                                    onClick={() => deleteTodo(todo.id)}>Delete</button> </td>
-                                    <td> <button className="btn btn-success" 
-                                                    onClick={() => updateTodo(todo.id)}>Update</button> </td>
+                        blogs.map(
+                            blog => (
+                                <tr key={blog.blogid}>
+                                    <td>{blog.content}</td>
+                                    <td>{blog.title}</td>
+                                    <td>{blog.type}</td>
+                                    <td>{blog.publicationData}</td>
                                 </tr>
                             )
                         )
@@ -96,9 +140,11 @@ function ListTodosComponent() {
 
                 </table>
             </div>
-            <div className="btn btn-success m-5" onClick={addNewTodo}>Add New Todo</div>
+                 */}
+            
+            <div className="btn btn-success m-5" onClick={addNewBlog}>Add New Blog</div>
         </div>
     )
 }
 
-export default ListTodosComponent
+export default ListBlogsComponent

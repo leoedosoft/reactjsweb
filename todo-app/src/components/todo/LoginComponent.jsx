@@ -4,7 +4,7 @@ import { useAuth } from './security/AuthContext'
 
 function LoginComponent() {
 
-    const [username, setUsername] = useState('in28minutes')
+    const [username, setUsername] = useState('admin@test.com')
 
     const [password, setPassword] = useState('')
 
