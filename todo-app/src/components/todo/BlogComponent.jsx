@@ -1,11 +1,14 @@
 /* eslint-disable no-const-assign */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import {useParams, useNavigate} from 'react-router-dom'
 import { retrieveBlogApi, updateBlogApi, createBlogApi } from './api/BlogApiService'
-import { useAuth } from './security/AuthContext'
+//import { useAuth } from './security/AuthContext'
 import {Formik, Form, Field, ErrorMessage} from 'formik'
 import moment from 'moment'
+
+import { AuthContext } from './security';
+
 
 export default function BlogComponent() {
     
@@ -15,10 +18,11 @@ export default function BlogComponent() {
     const[content, setContent] = useState('')
     const[targetDate, setTargetDate] = useState('')
 
-    const authContext = useAuth()
+    
     const navigate = useNavigate()
     
-    const token = authContext.token
+    const { user } = useContext( AuthContext );
+    const token = user.token
     
     useEffect(
         () => retrieveTodos(),[id])

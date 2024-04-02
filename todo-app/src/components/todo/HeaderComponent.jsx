@@ -1,10 +1,20 @@
+/* eslint-disable no-const-assign */
+import { useContext } from 'react';
 import {Link} from 'react-router-dom'
-import { useAuth } from './security/AuthContext'
+import { AuthContext } from './security';
+
 
 function HeaderComponent() {
 
-    const authContext = useAuth()
-    const isAuthenticated = authContext.isAuthenticated
+    const { user } = useContext( AuthContext );
+    const authContext = useContext( AuthContext );
+    
+
+    let isAuthenticated = false;
+    
+    if(user && user.isAuthenticated){
+        isAuthenticated = user.isAuthenticated;
+    }
 
     function logout() {
         authContext.logout()
@@ -31,6 +41,10 @@ function HeaderComponent() {
                             </ul>
                         </div>
                         <ul className="navbar-nav">
+                            <li className="nav-item">
+                                {isAuthenticated &&
+                                    <span className="nav-link">{user.username}</span> }
+                            </li>
                             <li className="nav-item">
                                 {!isAuthenticated &&
                                     <Link className="nav-link" to="/login">Login</Link> }

@@ -1,22 +1,30 @@
-import { createContext, useContext, useState } from "react";
+import { useReducer } from "react";
 import { apiClient } from "../api/ApiClient";
 import { executeJwtAuthenticationService } from "../api/AuthenticationApiService";
+import { AuthContext } from "./AuthContext";
+import { authReducer } from "./authReducer";
+import { types } from "./types";
 
 
-//1: Create a Context
-export const AuthContext = createContext()
-
-export const useAuth = () => useContext(AuthContext)
+const init = () => {
+    const user = JSON.parse( localStorage.getItem('user') );
+    return {
+      user: user,
+    }
+  }
 
 //2: Share the created context with other components
 export default function AuthProvider({ children }) {
 
+    const [ authState, dispatch ] = useReducer( authReducer, {}, init );
+
+
     //3: Put some state in the context
-    const [isAuthenticated, setAuthenticated] = useState(false)
+    //const [isAuthenticated, setAuthenticated] = useState(false)
 
-    const [username, setUsername] = useState(null)
+    //const [username, setUsername] = useState(null)
 
-    const [token, setToken] = useState(null)
+    //const [token, setToken] = useState(null)
 
     // function login(username, password) {
     //     if(username==='in28minutes' && password==='dummy'){
@@ -38,11 +46,12 @@ export default function AuthProvider({ children }) {
 
             if(response.status===200){
 
-                const jwtToken = 'Bearer ' + response.data
+                const jwtToken = 'Bearer ' + response.data.token
 
-                setAuthenticated(true)
-                setUsername(username)
-                setToken(jwtToken)
+                //setAuthenticated(true)
+                //setUsername(response.data.username)
+                //setToken(jwtToken)
+                const user = { isAuthenticated: true, username: response.data.username, token: jwtToken }
 
                 apiClient.interceptors.request.use(
                     (config) => {
@@ -51,6 +60,13 @@ export default function AuthProvider({ children }) {
                         return config
                     }
                 )
+
+                
+                const action = { type: types.login, payload: user }
+            
+                localStorage.setItem('user', JSON.stringify( user ) );
+            
+                dispatch(action);
                 
                 return true            
             } else {
@@ -65,13 +81,17 @@ export default function AuthProvider({ children }) {
 
 
     function logout() {
-        setAuthenticated(false)
-        setToken(null)
-        setUsername(null)
+        //setAuthenticated(false)
+        //setToken(null)
+        //setUsername(null)
+        localStorage.removeItem('user');
+        const user = { isAuthenticated: false, username: null, token: null }
+        const action = { type: types.logout, payload: user };
+        dispatch(action);
     }
 
     return (
-        <AuthContext.Provider value={ {isAuthenticated, login, logout, username, token}  }>
+        <AuthContext.Provider value={ { ...authState, login, logout }  }>
             {children}
         </AuthContext.Provider>
     )

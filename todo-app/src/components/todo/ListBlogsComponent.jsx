@@ -1,18 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { useNavigate } from 'react-router-dom'
 import { retrieveAllBlogsApi, deleteBlogApi } from "./api/BlogApiService"
-import { useAuth } from "./security/AuthContext"
+import { AuthContext } from './security';
 import Datatable, { SortOrder } from "react-data-table-component"
 
 function ListBlogsComponent() {
 
     //const today = new Date()
 
-    const authContext = useAuth()
-
-    const token = authContext.token
+    const { user } = useContext( AuthContext );
+    
+    const token = user.token
 
     const navigate = useNavigate()
     
@@ -27,7 +27,7 @@ function ListBlogsComponent() {
 
     function refreshBlogs() {
         
-        retrieveAllBlogsApi(authContext.token)
+        retrieveAllBlogsApi(user.token)
         .then( (response) => successfulResponse(response) )
         .catch ( (error) => errorResponse(error) )
     
