@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import {useNavigate} from 'react-router-dom'
-import { useAuth } from './security/AuthContext'
+
+import { AuthContext } from './security';
 
 function LoginComponent() {
 
@@ -12,7 +13,7 @@ function LoginComponent() {
 
     const navigate = useNavigate()
 
-    const authContext = useAuth()
+    const authContext = useContext( AuthContext );
 
     function handleUsernameChange(event) {
         setUsername(event.target.value)

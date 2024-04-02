@@ -4,16 +4,22 @@ import HeaderComponent from './HeaderComponent'
 import ErrorComponent from './ErrorComponent'
 import WelcomeComponent from './WelcomeComponent'
 import LoginComponent from './LoginComponent'
-import AuthProvider, { useAuth } from './security/AuthContext'
+//import AuthProvider, { useAuth } from './security/AuthContext'
+import { AuthContext } from './security';
 
 import './TodoApp.css'
 import ListBlogsComponent from './ListBlogsComponent'
 import BlogComponent from './BlogComponent'
+import { useContext } from 'react'
+import AuthProvider from './security/AuthProvider'
+
 
 function AuthenticatedRoute({children}) {
-    const authContext = useAuth()
+    //const authContext = useAuth()
+
+    const { user } = useContext( AuthContext );
     
-    if(authContext.isAuthenticated)
+    if(user.isAuthenticated)
         return children
 
     return <Navigate to="/" />
