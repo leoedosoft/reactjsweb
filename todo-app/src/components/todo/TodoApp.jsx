@@ -16,6 +16,7 @@ import AuthProvider from './security/AuthProvider'
 
 function AuthenticatedRoute({children}) {
     //const authContext = useAuth()
+    //Test commit
 
     const { user } = useContext( AuthContext );
     
